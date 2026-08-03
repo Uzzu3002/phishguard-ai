@@ -2,8 +2,19 @@ export const googleCallback = async (req, res) => {
   console.log("GOOGLE CALLBACK");
   console.log("Authenticated:", req.isAuthenticated());
   console.log("User:", req.user);
-  // Successful authentication, redirect to frontend dashboard.
-  res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+
+  console.log("Saving session before redirect");
+  req.session.save((err) => {
+    if (err) {
+      console.error("Session save failed:", err);
+      return res.status(500).send("Session save failed");
+    }
+
+    console.log("Session saved successfully");
+    console.log(req.session);
+
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+  });
 };
 
 export const logout = async (req, res) => {
