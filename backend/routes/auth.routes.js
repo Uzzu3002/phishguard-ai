@@ -15,7 +15,7 @@ router.get('/login', passport.authenticate('google', {
 }));
 
 router.get('/callback', passport.authenticate('google', { 
-  failureRedirect: 'http://localhost:5173/login?error=auth_failed' 
+  failureRedirect: `${process.env.FRONTEND_URL}/login?error=auth_failed` 
 }), googleCallback);
 
 router.post('/logout', logout);

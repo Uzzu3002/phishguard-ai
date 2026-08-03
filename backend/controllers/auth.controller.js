@@ -1,6 +1,6 @@
 export const googleCallback = async (req, res) => {
   // Successful authentication, redirect to frontend dashboard.
-  res.redirect('http://localhost:5173/dashboard');
+  res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
 };
 
 export const logout = async (req, res) => {
