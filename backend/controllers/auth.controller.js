@@ -19,6 +19,11 @@ export const logout = async (req, res) => {
 };
 
 export const getCurrentUser = async (req, res) => {
+  console.log("===== AUTH DEBUG =====");
+  console.log("isAuthenticated:", req.isAuthenticated());
+  console.log("Session ID:", req.sessionID);
+  console.log("Session:", req.session);
+  console.log("User:", req.user);
   if (req.isAuthenticated()) {
     res.json({
       name: req.user.displayName,
