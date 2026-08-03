@@ -1,0 +1,15 @@
+{
+  "domains": {
+    "trusted": ["google.com", "microsoft.com", "apple.com"],
+    "suspiciousTlds": [".xyz", ".top", ".pw", ".tk"]
+  },
+  "keywords": {
+    "urgency": ["urgent", "immediately", "action required", "account suspended"],
+    "financial": ["invoice", "payment", "wire transfer", "gift card"]
+  },
+  "scoringWeights": {
+    "domainMismatch": 0.4,
+    "urgencyKeywords": 0.2,
+    "suspiciousLinks": 0.4
+  }
+}

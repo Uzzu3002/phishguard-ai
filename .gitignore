@@ -1,0 +1,13 @@
+node_modules
+.env
+dist
+build
+.DS_Store
+
+# Sessions
+backend/sessions/
+
+# Environments
+frontend/.env.*
+!frontend/.env.example
+!backend/.env.example

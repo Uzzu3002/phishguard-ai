@@ -1,0 +1,41 @@
+[
+  {
+    "input": {
+      "subject": "Action Required: Update your billing information",
+      "sender": "billing@netflix-support-update.com",
+      "body": "Dear customer, your last payment was declined. Please click the link below to update your billing information within 24 hours to avoid service interruption.",
+      "spf_pass": false
+    },
+    "output": {
+      "riskScore": 94,
+      "classification": "Phishing",
+      "confidence": 97,
+      "reasoning": [
+        "Display name does not match sender domain.",
+        "Urgent language requesting immediate action.",
+        "Link points to a different domain.",
+        "SPF authentication failed."
+      ],
+      "recommendedAction": "Delete this email and do not click any links."
+    }
+  },
+  {
+    "input": {
+      "subject": "Weekly Team Meeting Agenda",
+      "sender": "sarah.connor@internal-company.com",
+      "body": "Hi team, attached is the agenda for our weekly meeting on Thursday. See you there!",
+      "spf_pass": true
+    },
+    "output": {
+      "riskScore": 5,
+      "classification": "Safe",
+      "confidence": 99,
+      "reasoning": [
+        "Sender domain matches known internal company domain.",
+        "No urgent language or psychological manipulation.",
+        "SPF authentication passed."
+      ],
+      "recommendedAction": "Safe to open and interact."
+    }
+  }
+]
