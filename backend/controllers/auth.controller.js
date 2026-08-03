@@ -1,4 +1,7 @@
 export const googleCallback = async (req, res) => {
+  console.log("GOOGLE CALLBACK");
+  console.log("Authenticated:", req.isAuthenticated());
+  console.log("User:", req.user);
   // Successful authentication, redirect to frontend dashboard.
   res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
 };
