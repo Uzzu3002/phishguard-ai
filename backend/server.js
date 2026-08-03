@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import session from 'express-session';
-import FileStoreFactory from 'session-file-store';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 
@@ -17,7 +16,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const FileStore = FileStoreFactory(session);
+
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -37,7 +36,6 @@ app.use(cookieParser());
 
 // Setup Session
 app.use(session({
-  store: new FileStore({ path: './sessions' }),
   secret: process.env.SESSION_SECRET || 'fallback_secret',
   resave: false,
   saveUninitialized: false,
