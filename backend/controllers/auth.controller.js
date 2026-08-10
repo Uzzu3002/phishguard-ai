@@ -13,7 +13,8 @@ export const googleCallback = async (req, res) => {
     console.log("Session saved successfully");
     console.log(req.session);
 
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    const frontendUrl = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : 'http://localhost:5173';
+    res.redirect(`${frontendUrl}/dashboard`);
   });
 };
 
