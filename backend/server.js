@@ -20,9 +20,8 @@ const PORT = process.env.PORT || 5000;
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-if (isProduction) {
-  app.set('trust proxy', 1);
-}
+// Trust all proxies unconditionally on Railway/Render for secure cookies
+app.set('trust proxy', true);
 
 app.use(helmet());
 app.use(cors({
@@ -40,9 +39,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: isProduction, // Set to true in production with HTTPS
-    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction, // Must be true on Railway
+    sameSite: isProduction ? 'none' : 'lax', // Must be 'none' for cross-origin
     httpOnly: true,
+    path: '/',
     maxAge: 24 * 60 * 60 * 1000 // 1 day
   }
 }));
