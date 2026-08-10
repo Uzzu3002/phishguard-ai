@@ -30,6 +30,7 @@ export default function FloatingAICopilot() {
       const response = await fetch(`${API_BASE_URL}/api/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           message: query,
           scanContext: { scanData, safeCount, reviewCount, highRiskCount, securityScore }
