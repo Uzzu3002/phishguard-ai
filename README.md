@@ -1,103 +1,154 @@
-# PhishGuard AI — AI-Assisted Email Phishing Detection and Security Analysis Platform
+# 🛡️ PhishGuard AI
 
-## 1. Project Overview
-PhishGuard AI is an MCA Cybersecurity academic project designed to demonstrate practical email phishing detection. It is a **local-first** application designed for learning, demonstration, research, and academic evaluation. It is **not** a publicly hosted service; rather, it is designed to run securely on the user's own computer, putting the user in full control of their data and APIs.
+### AI-Assisted Email Phishing Detection & Security Analysis Platform
 
-## 2. Problem Statement
-Phishing remains one of the most sophisticated and damaging cybersecurity threats, heavily relying on social engineering to bypass standard technical perimeter defenses. Identifying these threats manually is time-consuming and error-prone for the average user.
+PhishGuard AI is a local-first cybersecurity application that analyzes Gmail messages using rule-based threat detection, risk scoring, authentication indicators, and Gemini AI-assisted explanations.
 
-## 3. Objectives
-The objective of this project is to build a cohesive platform that demonstrates how email metadata and content can be systematically analyzed using deterministic security heuristics alongside AI-assisted contextual reasoning.
+> 🎓 **MCA Cybersecurity Academic Project**  
+> 🔒 **Local-first application** — runs on the user's own computer  
+> 🚫 **Not a publicly hosted email security service**
 
-## 4. Key Features
-- **Google OAuth Login:** Secure, delegated login without handling user credentials.
-- **Gmail API Integration:** Seamless email scanning and retrieval via official Google APIs.
-- **Rule-Based Phishing Analysis:** Fast, deterministic heuristic engine parsing emails for known indicators of compromise (IoCs).
-- **Risk Scoring:** Algorithmic calculation generating actionable threat levels.
-- **Threat Classification:** Emails are definitively classified as Safe, Review, or High Risk.
-- **AI-Assisted Email Explanation:** Contextual, natural-language threat analysis utilizing Google Gemini AI.
-- **Security Recommendations:** Concrete next steps generated for compromised or suspicious emails.
-- **Security Dashboard:** An interactive React interface for reviewing scan results and inbox metrics.
-- **AI Copilot:** A context-aware chatbot for querying the results of your active scan session.
-- **Local Execution:** A decoupled, privacy-first architecture running entirely on your local machine.
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 
-## 5. Technology Stack
-**Frontend:**
-- React (Vite)
-- TailwindCSS
-- React Router
-- Recharts
-- Lucide React
+---
 
-**Backend:**
-- Node.js
-- Express
-- express-session
+## 2. PROJECT OVERVIEW
 
-**Authentication & Email Integration:**
-- Passport.js (passport-google-oauth20)
-- Googleapis (Gmail API)
+Phishing emails remain one of the most common and devastating attack vectors. Traditional users often struggle to distinguish legitimate messages from highly sophisticated, socially engineered suspicious emails.
 
-**AI:**
-- @google/genai (Google Gemini API)
+PhishGuard AI demonstrates a comprehensive approach to mitigating this threat by integrating:
+- **Gmail integration** via official REST APIs.
+- **Automated email analysis** parsing metadata and content.
+- **Rule-based phishing detection** executing strict deterministic security heuristics.
+- **Risk scoring** assigning a quantifiable threat level.
+- **Authentication/security indicators** validating sender identity.
+- **AI-assisted explanation** translating complex threat vectors into human-readable analysis.
+- **Interactive dashboard** for visualizing the inbox threat landscape.
+- **AI Copilot** for querying real-time scan results interactively.
 
-## 6. System Architecture
+---
+
+## 3. KEY FEATURES
+
+| Feature | Description |
+|---|---|
+| 🔐 Google OAuth | Secure authentication through Google OAuth without handling passwords |
+| 📧 Gmail Integration | Retrieves email data directly through the official Gmail API |
+| 🧠 Rule-Based Detection | Evaluates suspicious email indicators (links, urgency, sender mismatches) |
+| ⚠️ Risk Scoring | Assigns a mathematical threat/risk score based on triggered rules |
+| 🤖 Gemini AI Analysis | Generates human-readable security explanations for flagged emails |
+| 📊 Security Dashboard | Displays scan results, verdicts, and aggregated security metrics |
+| 💬 AI Copilot | Answers questions using the active scan context |
+| 🔎 Email Analysis | Provides detailed analysis of individual suspicious emails |
+
+---
+
+## 4. HOW PHISHGUARD AI WORKS
+
+The processing pipeline guarantees that analysis is performed locally and contextualized securely:
+
+1. **User** initiates login on the local port.
+2. **React Frontend** redirects to the Google OAuth flow.
+3. **Google OAuth** grants a delegated access token.
+4. **Gmail API** uses the token to fetch recent emails.
+5. **Email Retrieval** normalizes the raw MIME data.
+6. **Rule-Based Analysis** executes the deterministic heuristic engine.
+7. **Risk Score + Verdict** are calculated based on the triggered rules.
+8. **Gemini AI Explanation** is requested *only* for flagged/suspicious emails to provide context.
+9. **Dashboard + AI Copilot** display the final aggregated data back to the user.
+
+*Note: The deterministic rule engine performs the initial security analysis. Gemini AI is utilized exclusively as an explanation and advisory layer, not as the primary binary phishing detector.*
+
+---
+
+## 5. ARCHITECTURE
 
 ```mermaid
 flowchart TD
-    User([User])
-    User --> ReactFrontend[React Frontend]
-    ReactFrontend --> ExpressBackend[Express Backend]
+    A([User]) --> B[React/Vite Frontend]
+    B <--> C[Express Backend]
     
-    ExpressBackend --> GoogleOAuth[Google OAuth / Gmail API]
-    GoogleOAuth --> EmailData[Email Data]
+    C <--> D[Google OAuth]
+    C <--> E[Gmail API]
     
-    EmailData --> RuleBasedEngine[Rule-Based Detection Engine]
-    RuleBasedEngine --> RiskClassification[Risk Classification]
+    C --> F[Rule Engine]
+    F --> G[Risk Analysis]
     
-    RiskClassification --> GeminiAILayer[Gemini AI Explanation Layer]
+    G --> H[Gemini AI]
     
-    GeminiAILayer --> DashboardCopilot[Dashboard / AI Copilot]
-    DashboardCopilot --> ReactFrontend
+    H --> I[Dashboard]
+    G --> I
+    
+    I --> J[AI Copilot]
+    J <--> B
 ```
 
-## 7. Detection Methodology
-PhishGuard AI uses a layered approach to threat detection to balance speed, deterministic accuracy, and contextual understanding.
+**Architecture Flow:** The user interfaces solely with the React/Vite Frontend, which communicates with the local Express Backend. The backend handles all external API calls (OAuth, Gmail, Gemini) keeping API keys and access tokens strictly server-side. The local Rule Engine performs the threat analysis, and the results are returned to the frontend's Dashboard and AI Copilot.
 
-## 8. Rule-Based Risk Analysis
-The initial analysis is performed by a deterministic heuristic engine that rapidly scans metadata, headers, and body content for suspicious links, spoofed domains, and urgent language. Triggered rules are aggregated to produce a final, quantifiable Risk Score.
+---
 
-## 9. Gemini AI Explanation Layer
-For emails that meet the suspicion threshold, the Gemini API is queried. While the core detection logic relies on the Rule Engine, Gemini acts as an advanced advisory layer to provide a natural-language explanation of *why* the deterministic engine flagged the email.
+## 6. DETECTION MODEL
 
-## 10. AI Copilot
-The AI Copilot uses the active scan context and predefined backend query handling to answer questions dynamically. Example queries include:
+PhishGuard AI uses a deterministic rule-based analysis layer that evaluates incoming emails against known phishing indicators. The engine checks for:
+
+- **Suspicious language:** Scanning for common social engineering keywords (e.g., "password reset", "account suspended").
+- **Urgency indicators:** Detecting artificial time constraints meant to force user action (e.g., "immediate action required", "within 24 hours").
+- **Suspicious sender indicators:** Flagging mismatches between the `From` header and the actual `Reply-To` or `Return-Path` domains.
+- **Link-related indicators:** Identifying mismatched anchor text, excessive external links, or known suspicious TLDs.
+
+---
+
+## 7. RISK CLASSIFICATION
+
+Based on the cumulative weight of the rules triggered in the Detection Model, every email receives a risk score. This score is then mapped to a definitive verdict category:
+
+- **SAFE:** The email exhibits no suspicious indicators.
+- **REVIEW:** The email triggered minor warnings (e.g., unusual urgency) and warrants user caution.
+- **HIGH_RISK:** The email triggered critical indicators (e.g., spoofed domains, suspicious links) and is highly likely to be a phishing attempt.
+
+*The risk score helps prioritize investigation. It is a heuristic metric, not a guaranteed probability of compromise.*
+
+---
+
+## 8. AI COPILOT
+
+The AI Copilot is an interactive security assistant that provides contextual responses using the current scan results. It is bound to the active scan context and acts as a dynamic interface to your inbox security report.
+
+Example queries include:
 - *How many emails were scanned?*
 - *How many phishing emails were detected?*
 - *How many suspicious emails are there?*
 - *What is my security score?*
 - *Is my inbox safe?*
+- *What should I do next?*
 - *What is the highest risk email?*
 - *Show high-risk emails*
 - *Show suspicious emails*
 - *Summarize my latest scan*
-- *What should I do next?*
 
-## 11. Gmail API Integration
-Emails are retrieved automatically through the official Googleapis client, ensuring that messages are fetched securely using modern REST principles.
+*(The Copilot is an interface for querying existing scan data; it is not an autonomous security agent.)*
 
-## 12. Google OAuth Authentication
-Authentication is handled via Passport.js using Google OAuth 2.0. This ensures that the application operates entirely via delegated tokens and never requests or stores a user's password.
+---
 
-## 13. Security Considerations
-- API keys remain strictly server-side.
-- Gmail access uses delegated OAuth tokens without requiring user passwords.
-- Credentials must be stored in `.env`.
-- `.env` must never be committed.
-- Users should only analyze Gmail accounts they are explicitly authorized to access.
-- This project is solely for educational/research purposes.
+## 9. TECHNOLOGY STACK
 
-## 14. Project Structure
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React, Vite, Tailwind CSS, JavaScript |
+| **Backend** | Node.js, Express |
+| **Authentication** | Passport.js, Google OAuth 2.0 |
+| **Email Integration** | Googleapis (Gmail API) |
+| **AI** | @google/genai (Gemini API) |
+| **Security** | Session-based authentication, Environment-based secrets, Rule-based threat analysis, Helmet |
+
+---
+
+## 10. PROJECT STRUCTURE
+
 ```text
 phishguard-ai/
 ├── backend/
@@ -109,6 +160,7 @@ phishguard-ai/
 │   ├── .env.example
 │   ├── package.json
 │   └── server.js
+│
 ├── frontend/
 │   ├── public/
 │   ├── src/
@@ -117,103 +169,221 @@ phishguard-ai/
 │   │   ├── context/
 │   │   ├── pages/
 │   │   └── main.jsx
+│   ├── index.html
 │   ├── package.json
 │   └── vite.config.js
+│
 ├── .gitignore
 ├── LICENSE
 └── README.md
 ```
 
-## 15. Local Installation
-To install and run PhishGuard AI on Windows:
+---
 
-```bash
-git clone <repository-url>
-cd phishguard-ai
-```
+## 11. LOCAL INSTALLATION
 
-**Backend:**
-```bash
-cd backend
-npm install
-```
+PhishGuard AI is built to run entirely locally. Follow these steps to set up your own instance.
 
-**Frontend:**
-```bash
-cd frontend
-npm install
-```
+### Prerequisites:
+- Node.js (v18+)
+- npm
+- Google account
+- Google Cloud project (with Gmail API enabled)
+- Gemini API key
 
-## 16. Environment Configuration
-You must provide your OWN Google OAuth credentials and Gemini API key. 
-In the `backend` directory, copy `.env.example` to create a new `.env` file, and configure the required values:
+### Setup Steps:
+1. **Clone repository:**
+   ```bash
+   git clone <repository-url>
+   cd phishguard-ai
+   ```
+2. **Install backend dependencies:**
+   ```bash
+   cd backend
+   npm install
+   ```
+3. **Install frontend dependencies:**
+   ```bash
+   cd ../frontend
+   npm install
+   ```
+4. **Create environment file:**
+   Copy `backend/.env.example` to `backend/.env`.
+5. **Configure credentials:**
+   Fill in your Gemini API key and Session Secret in the `.env` file.
+6. **Configure Google OAuth:**
+   Add your Google OAuth Client ID and Secret to the `.env` file. (Ensure your Google Cloud Console redirect URI is set to `http://localhost:5000/api/auth/callback`).
+7. **Start backend:** (from `backend/` directory)
+   `node server.js`
+8. **Start frontend:** (from `frontend/` directory)
+   `npm run dev`
+9. **Open localhost:**
+   Navigate to `http://localhost:5173` in your browser.
+
+*(Note: `localhost` addresses refer exclusively to your own computer and are not public internet endpoints.)*
+
+---
+
+## 12. ENVIRONMENT CONFIGURATION
+
+Your `backend/.env` file should look like this:
 
 ```env
 PORT=5000
 NODE_ENV=development
-
 BACKEND_URL=http://localhost:5000
 FRONTEND_URL=http://localhost:5173
 
 GEMINI_API_KEY=your_gemini_api_key
+
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
+
 SESSION_SECRET=your_session_secret
 ```
 
-*(Never commit your real `.env` file to version control!)*
+> ⚠️ **WARNING:** Never commit real `.env` files, API keys, OAuth secrets, session secrets, access tokens, or refresh tokens to GitHub.
 
-## 17. Google OAuth Configuration
-Ensure your Google Cloud OAuth Client is configured with:
-- **Authorized JavaScript origin:** `http://localhost:5173`
-- **Authorized redirect URI:** `http://localhost:5000/api/auth/callback`
+---
 
-## 18. Running the Application
-**Terminal 1:**
+## 13. GOOGLE OAUTH CONFIGURATION
+
+To allow local login, configure your OAuth 2.0 Client ID in your Google Cloud Console with the following settings:
+
+- **Authorized JavaScript origin:**
+  `http://localhost:5173`
+- **Authorized redirect URI:**
+  `http://localhost:5000/api/auth/callback`
+
+*You must configure and use your own Google Cloud OAuth credentials.*
+
+---
+
+## 14. GEMINI API CONFIGURATION
+
+The Gemini API is used as an AI-assisted explanation layer. 
+- The Gemini API key belongs strictly in `backend/.env`.
+- It must **never** be placed in the frontend configuration.
+- It must **never** be committed to GitHub.
+- The backend accesses it securely through environment variables to prevent client-side exposure.
+
+---
+
+## 15. RUNNING THE PROJECT
+
+**Terminal 1 (Backend):**
 ```bash
 cd backend
+npm install
 node server.js
 ```
 
-**Terminal 2:**
+**Terminal 2 (Frontend):**
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 
-Then open your browser to: `http://localhost:5173`
+Then open your browser and navigate to: `http://localhost:5173`
 
-## 19. Stopping the Application
-To stop both development servers, press `Ctrl + C` in both Terminal 1 and Terminal 2.
+---
 
-## 20. Example Workflow
-1. User starts both local servers and visits the frontend.
-2. User authenticates via the "Continue with Google" button.
-3. Upon callback, the user is redirected to the dashboard.
-4. The dashboard triggers an email scan.
-5. The local engine calculates risk scores while Gemini generates explanations.
-6. The user interacts with the Copilot to summarize the threat landscape.
+## 16. SECURITY DESIGN
 
-## 21. Limitations
-- Rule-based detection can produce false positives and false negatives.
+PhishGuard AI implements several foundational security best practices:
+- **Environment-based secrets:** All sensitive API keys and Client Secrets are isolated in `.env` files.
+- **Google OAuth:** Authentication is delegated to Google; the application never handles or stores user passwords.
+- **Session authentication:** Express-session manages secure user sessions locally.
+- **Helmet:** The backend utilizes the Helmet middleware to set secure HTTP headers.
+- **Backend-only Gemini API access:** The frontend never communicates directly with the Gemini API, preventing key leakage.
+- **.gitignore protection:** Version control is explicitly configured to ignore all `.env` files and session stores.
+
+---
+
+## 17. SECURITY LIMITATIONS
+
+PhishGuard AI is an academic cybersecurity project and should not be treated as a replacement for enterprise email security gateways, commercial EDR/XDR platforms, or professional SOC tooling.
+
+- Rule-based detection can produce false positives/negatives.
 - AI-generated explanations should be treated as assistance, not absolute truth.
-- The system does not guarantee detection of every phishing email.
-- Gmail access requires appropriate OAuth permissions.
-- This is **not** a replacement for enterprise email security systems.
+- Users should independently verify suspicious emails.
+- The application is intended strictly for educational and demonstration purposes.
 
-## 22. Academic Use / Disclaimer
-This software is provided for educational and research purposes only. The author is not responsible for any misuse, data loss, or security incidents arising from the deployment of this tool. Users must strictly adhere to the terms of service of all integrated APIs and respect privacy laws.
+---
 
-## 23. Future Enhancements
-- ML-based phishing classification
-- URL reputation analysis
+## 18. SCREENSHOTS / DEMO
+
+## 📸 Application Preview
+
+> **TODO:** Add application screenshots here once local setup is complete.
+> - Login Screen
+> - Security Dashboard
+> - Detailed Email Analysis
+> - AI Copilot Interaction
+
+---
+
+## 19. EXAMPLE AI COPILOT SESSION
+
+**User:**
+*"How many emails were scanned?"*
+
+**PhishGuard AI:**
+*"Your latest scan analyzed 15 emails."*
+
+*(Responses are generated dynamically from your active scan context based on the specific number of emails your Gmail inbox returned during the current session).*
+
+---
+
+## 20. USE CASES
+
+- Cybersecurity education
+- Phishing awareness demonstrations
+- Email security research
+- Rule-based threat detection experiments
+- AI-assisted security analysis
+- MCA academic project demonstrations
+- Security dashboard prototyping
+
+---
+
+## 21. LEARNING OBJECTIVES
+
+This project academically demonstrates:
+- Secure API integration (REST)
+- OAuth 2.0 authentication flows
+- Email security analysis and metadata parsing
+- Heuristic threat scoring models
+- Decoupled Backend/Frontend architecture
+- Generative AI integration for cybersecurity context
+- Security-focused application development
+- Secure environment configuration
+
+---
+
+## 22. FUTURE ENHANCEMENTS
+
+*(FUTURE WORK)*
+- More advanced phishing feature extraction
+- URL reputation analysis (e.g., VirusTotal integration)
 - Attachment analysis
-- Email-header analysis
+- Email-header anomalies analysis (DKIM/SPF validation)
 - Threat intelligence integration
 - MITRE ATT&CK mapping
 - SIEM integration
-- Advanced threat hunting
-- Improved AI-assisted analysis
+- Security event logging
+- Automated test coverage
+- Improved threat intelligence integration
 
-## 24. License
+---
+
+## 23. DISCLAIMER
+
+PhishGuard AI is an academic cybersecurity project developed for educational, research, and demonstration purposes. It is not intended to replace professional email security solutions.
+
+---
+
+## 24. LICENSE
+
 [MIT License](./LICENSE)
