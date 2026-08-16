@@ -27,17 +27,33 @@ export default function FloatingAICopilot() {
 
   const generateResponse = async (query) => {
     try {
+      const currentContext = scanData 
+        ? { scanData, safeCount, reviewCount, highRiskCount, securityScore }
+        : { status: "No scan performed yet. User is inquiring generally." };
+
       const response = await fetch(`${API_BASE_URL}/api/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
           message: query,
-          scanContext: { scanData, safeCount, reviewCount, highRiskCount, securityScore }
+          scanContext: currentContext
         })
       });
+
+      if (!response.ok) {
+        if (response.status === 502 || response.status === 503) {
+           return "The AI service is currently unavailable (Tunnel offline). Please try again later.";
+        }
+        return `I encountered an error analyzing that. (Error ${response.status})`;
+      }
+
       const data = await response.json();
-      return data.reply || "I encountered an error analyzing that.";
+      if (!data || typeof data.reply !== 'string') {
+        return "Received an unexpected response format from the AI.";
+      }
+      
+      return data.reply;
     } catch (err) {
       return "I encountered a network error connecting to the AI provider.";
     }
