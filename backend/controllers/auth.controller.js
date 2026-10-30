@@ -1,19 +1,11 @@
 export const googleCallback = async (req, res) => {
-  console.log("====== OAUTH CALLBACK REACHED ======");
-  console.log("User Authenticated:", req.isAuthenticated());
-  console.log("User Email:", req.user?.email);
-  console.log("Session ID Exists:", !!req.sessionID, req.sessionID);
-
-  console.log("Initiating session.save()...");
   req.session.save((err) => {
     if (err) {
       console.error("====== SESSION SAVE FAILED ======", err);
       return res.status(500).send("Session save failed");
     }
 
-    console.log("====== SESSION SAVED SUCCESSFULLY ======");
     const frontendUrl = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : 'http://localhost:5173';
-    console.log(`Executing redirect to: ${frontendUrl}/dashboard`);
     res.redirect(`${frontendUrl}/dashboard`);
   });
 };
@@ -34,12 +26,6 @@ export const logout = async (req, res) => {
 };
 
 export const getCurrentUser = async (req, res) => {
-  console.log("===== AUTH DEBUG =====");
-  console.log("isAuthenticated:", req.isAuthenticated());
-  console.log("Session ID:", req.sessionID);
-  console.log("Session:", req.session);
-  console.log("Passport:", req.session?.passport);
-  console.log("User:", req.user);
   if (req.isAuthenticated()) {
     res.json({
       name: req.user.displayName,

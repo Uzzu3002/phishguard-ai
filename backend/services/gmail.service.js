@@ -5,6 +5,27 @@ dotenv.config();
 // In-memory email store mapping session/userId to emails
 const emailCache = new Map();
 
+const GMAIL_FETCH_CONCURRENCY = 10;
+
+// Gmail returns snippets HTML-escaped (e.g. "&amp;", "&#39;")
+const HTML_ENTITIES = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&nbsp;': ' ' };
+const decodeEntities = (text) =>
+  text.replace(/&(?:amp|lt|gt|quot|#39|nbsp);/g, (entity) => HTML_ENTITIES[entity]);
+
+// Runs fn over items with at most `limit` calls in flight, preserving order
+const mapWithConcurrency = async (items, limit, fn) => {
+  const results = new Array(items.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+};
+
 export const getGmailClient = (accessToken, refreshToken, userEmail) => {
 
   if (!accessToken) {
@@ -32,13 +53,6 @@ export const getGmailClient = (accessToken, refreshToken, userEmail) => {
 export const fetchLatestEmails = async (userId, accessToken, refreshToken, userEmail, maxResults = 100, query = '') => {
   try {
     const gmail = getGmailClient(accessToken, refreshToken, userEmail);
-    
-    // Verify permissions first
-    try {
-      await gmail.users.getProfile({ userId: 'me' });
-    } catch (profileError) {
-      throw new Error(`Gmail API permission denied: ${profileError.message}`);
-    }
 
     const response = await gmail.users.messages.list({
       userId: 'me',
@@ -47,10 +61,9 @@ export const fetchLatestEmails = async (userId, accessToken, refreshToken, userE
     });
 
     const messages = response.data.messages || [];
-    const detailedEmails = [];
 
-    // Fetch details for each message
-    for (const message of messages) {
+    // Fetch message metadata in parallel, a few at a time to stay within Gmail rate limits
+    const results = await mapWithConcurrency(messages, GMAIL_FETCH_CONCURRENCY, async (message) => {
       try {
         const emailDetail = await gmail.users.messages.get({
           userId: 'me',
@@ -72,20 +85,22 @@ export const fetchLatestEmails = async (userId, accessToken, refreshToken, userE
         const dateHeader = getHeader('Date');
         const authResultsHeader = getHeader('Authentication-Results');
 
-        detailedEmails.push({
+        return {
           messageId: emailDetail?.data?.id || message.id,
-          snippet: emailDetail?.data?.snippet || '',
+          snippet: decodeEntities(emailDetail?.data?.snippet || ''),
           labelIds: emailDetail?.data?.labelIds || [],
           subject: subjectHeader || '(No Subject)',
           sender: fromHeader || 'Unknown Sender',
           date: dateHeader || null,
           authenticationResults: authResultsHeader || ''
-        });
+        };
       } catch (emailError) {
         console.warn(`WARNING: Skipping malformed email ${message.id}:`, emailError.message);
+        return null;
       }
-    }
-    
+    });
+    const detailedEmails = results.filter(Boolean);
+
     // Store in memory only if there is no query
     if (!query) {
       emailCache.set(userId, detailedEmails);

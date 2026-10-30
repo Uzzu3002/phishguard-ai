@@ -139,7 +139,7 @@ export default function EmailList() {
               <Filter className="w-4 h-4" />
               <span className="text-sm">Filter</span>
             </button>
-            <div className="absolute right-0 mt-2 w-40 bg-card border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 p-1">
+            <div className="absolute right-0 mt-2 w-40 bg-card border border-border rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all z-10 p-1">
               {['all', RISK_LEVELS.HIGH, RISK_LEVELS.MEDIUM, RISK_LEVELS.LOW].map(r => (
                 <button 
                   key={r}

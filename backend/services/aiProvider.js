@@ -5,16 +5,35 @@ dotenv.config();
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+// Gemini explanations keyed by Gmail message id, so reopening an email costs no API call
+const explanationCache = new Map();
+const EXPLANATION_CACHE_LIMIT = 500;
+
+// When Gemini returns 429 (quota exhausted), skip calls until this timestamp
+let geminiBlockedUntil = 0;
+
+const parseRetryDelayMs = (message = '') => {
+  const match = message.match(/"retryDelay":"(\d+)s"/);
+  return match ? Number(match[1]) * 1000 : 60 * 1000;
+};
+
 class AIProvider {
   async explainAnalysis(analysis) {
     const { verdict, riskScore, explanation, recommendations, authenticationResults, subject, sender, snippet } = analysis;
-    
+
     const generateFallback = () => ({
       summary: `This email was classified as ${verdict} with a Threat Score of ${riskScore}/100.`,
       technicalReason: `Authentication checks: ${authenticationResults || 'Not found'}. Triggered heuristics: ${explanation || 'None'}`,
-      userExplanation: `We detected some patterns in this email that warrant attention. ${explanation || 'No suspicious language was found.'}`,
-      recommendations: recommendations || []
+      userExplanation: verdict === 'SAFE'
+        ? (explanation || 'No suspicious indicators were found.')
+        : `We detected some patterns in this email that warrant attention. ${explanation}`,
+      recommendations: recommendations || [],
+      source: 'rules'
     });
+
+    if (!process.env.GEMINI_API_KEY || Date.now() < geminiBlockedUntil) {
+      return generateFallback();
+    }
 
     try {
       const prompt = `Analyze this email payload: 
@@ -55,23 +74,45 @@ Generate the explanation.`;
 
       const parsed = JSON.parse(response.text);
       if (!parsed.summary || !parsed.technicalReason) throw new Error("Invalid schema");
-      return parsed;
+      return { ...parsed, source: 'gemini' };
     } catch (error) {
-      console.error("Gemini Explanation Error, falling back to rules:", error.message);
+      if (error.status === 429 || error.message?.includes('RESOURCE_EXHAUSTED')) {
+        const delayMs = parseRetryDelayMs(error.message);
+        geminiBlockedUntil = Date.now() + delayMs;
+        console.warn(`Gemini quota exhausted, using rule-based explanations for the next ${Math.ceil(delayMs / 1000)}s`);
+      } else {
+        console.error("Gemini Explanation Error, falling back to rules:", error.message);
+      }
       return generateFallback();
     }
   }
 
-  async analyzeEmail(email) {
+  // Rule-engine analysis is instant; the Gemini explanation is only generated when
+  // `explain` is set (single-email view), since bulk scans would exhaust the API quota.
+  async analyzeEmail(email, { explain = false, cacheKey } = {}) {
     const rawAnalysis = ruleEngineAnalyze(email);
     rawAnalysis.subject = email.subject;
     rawAnalysis.sender = email.sender;
     rawAnalysis.snippet = email.snippet;
 
+    let explainer = null;
+    if (explain) {
+      explainer = cacheKey ? explanationCache.get(cacheKey) : null;
+      if (!explainer) {
+        explainer = await this.explainAnalysis(rawAnalysis);
+        if (cacheKey && explainer.source === 'gemini') {
+          if (explanationCache.size >= EXPLANATION_CACHE_LIMIT) {
+            explanationCache.delete(explanationCache.keys().next().value);
+          }
+          explanationCache.set(cacheKey, explainer);
+        }
+      }
+    }
+
     return {
       ...email,
       ...rawAnalysis,
-      explainer: await this.explainAnalysis(rawAnalysis)
+      explainer
     };
   }
 

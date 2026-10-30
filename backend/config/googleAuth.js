@@ -24,8 +24,6 @@ passport.use(new GoogleStrategy({
           refreshToken
         }
       };
-      console.log("GOOGLE STRATEGY SUCCESS");
-      console.log(user);
       return done(null, user);
     } catch (error) {
       return done(error, null);
@@ -35,14 +33,10 @@ passport.use(new GoogleStrategy({
 
 // Serialize user into the session
 passport.serializeUser((user, done) => {
-  console.log("SERIALIZE USER");
-  console.log(user);
   done(null, user);
 });
 
 // Deserialize user from the session
 passport.deserializeUser((user, done) => {
-  console.log("DESERIALIZE USER");
-  console.log(user);
   done(null, user);
 });
