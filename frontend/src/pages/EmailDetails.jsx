@@ -112,7 +112,8 @@ export default function EmailDetails() {
   let iocDomains = [];
   let iocEmails = [];
   try {
-    const rawStr = JSON.stringify(emailData.payload || {}) + " " + (emailData.snippet || "");
+    // Body parts are base64-encoded in the payload, so body links come decoded from the backend analysis
+    const rawStr = (analysis?.links || []).join(" ") + " " + JSON.stringify(emailData.payload || {}) + " " + (emailData.snippet || "");
     iocUrls = [...new Set(rawStr.match(/(https?:\/\/[a-zA-Z0-9.\-_~:/?#[\]@!$&'()*+,;=%]+)/g) || [])]
       .filter(u => !u.includes('schemas.google.com') && !u.includes('w3.org') && !u.includes('gstatic.com'));
     iocDomains = [...new Set(iocUrls.map(u => {

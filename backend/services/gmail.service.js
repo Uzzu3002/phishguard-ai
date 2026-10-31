@@ -69,7 +69,7 @@ export const fetchLatestEmails = async (userId, accessToken, refreshToken, userE
           userId: 'me',
           id: message.id,
           format: 'metadata',
-          metadataHeaders: ['Subject', 'From', 'Date', 'Authentication-Results']
+          metadataHeaders: ['Subject', 'From', 'Reply-To', 'Date', 'Authentication-Results']
         });
 
         const payload = emailDetail?.data?.payload ?? {};
@@ -82,6 +82,7 @@ export const fetchLatestEmails = async (userId, accessToken, refreshToken, userE
 
         const subjectHeader = getHeader('Subject');
         const fromHeader = getHeader('From');
+        const replyToHeader = getHeader('Reply-To');
         const dateHeader = getHeader('Date');
         const authResultsHeader = getHeader('Authentication-Results');
 
@@ -91,6 +92,7 @@ export const fetchLatestEmails = async (userId, accessToken, refreshToken, userE
           labelIds: emailDetail?.data?.labelIds || [],
           subject: subjectHeader || '(No Subject)',
           sender: fromHeader || 'Unknown Sender',
+          replyTo: replyToHeader || null,
           date: dateHeader || null,
           authenticationResults: authResultsHeader || ''
         };
@@ -110,6 +112,30 @@ export const fetchLatestEmails = async (userId, accessToken, refreshToken, userE
     console.error('Error fetching emails from Gmail:', error);
     throw error;
   }
+};
+
+const decodeBase64Url = (data = '') => Buffer.from(data, 'base64url').toString('utf8');
+
+// Walks a Gmail MIME payload and collects plain text, HTML, links and attachment count
+export const extractBody = (payload) => {
+  let bodyText = '';
+  let bodyHtml = '';
+  let attachmentsFound = 0;
+  const walk = (part) => {
+    if (!part) return;
+    if (part.filename) attachmentsFound++;
+    else if (part.mimeType === 'text/plain' && part.body?.data) bodyText += decodeBase64Url(part.body.data);
+    else if (part.mimeType === 'text/html' && part.body?.data) bodyHtml += decodeBase64Url(part.body.data);
+    (part.parts || []).forEach(walk);
+  };
+  walk(payload);
+
+  const hrefs = [...bodyHtml.matchAll(/href\s*=\s*["'](https?:\/\/[^"']+)["']/gi)].map(m => m[1]);
+  const bare = (bodyText.match(/https?:\/\/[^\s<>"')\]]+/g) || []);
+  const links = [...new Set([...hrefs, ...bare].map(u => u.replace(/&amp;/g, '&')))].slice(0, 200);
+
+  if (!bodyText && bodyHtml) bodyText = bodyHtml.replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ');
+  return { bodyText, bodyHtml, links, attachmentsFound };
 };
 
 export const getStoredEmails = (userId) => {

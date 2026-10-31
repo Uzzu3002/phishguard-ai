@@ -1,4 +1,4 @@
-import { fetchLatestEmails, getStoredEmails, getEmail as fetchSpecificEmail } from '../services/gmail.service.js';
+import { fetchLatestEmails, getStoredEmails, getEmail as fetchSpecificEmail, extractBody } from '../services/gmail.service.js';
 import aiProvider from '../services/aiProvider.js';
 
 // One in-flight scan per user: concurrent requests (double renders, multiple tabs) share it
@@ -9,7 +9,7 @@ const analyzeAll = async (rawEmails) => {
   return settled.filter(r => r.status === 'fulfilled').map(r => r.value);
 };
 
-const logGmailError = (label, error) => {
+const logGmailError =(label, error) => {
   console.error(`${label}:`, error.message || error);
   if (error.response?.data) console.error(error.response.data);
 };
@@ -75,12 +75,21 @@ export const getEmail = async (req, res) => {
       ...emailDetail,
       subject: subjectHeader || '(No Subject)',
       sender: fromHeader || 'Unknown Sender',
+      replyTo: getHeader('Reply-To'),
       recipient: toHeader ? toHeader.value : 'Unknown Recipient',
       date: dateHeader || null,
       authenticationResults: authResultsHeader || ''
     };
 
-    const analysis = await aiProvider.analyzeEmail(normalizedEmail, { explain: true, cacheKey: req.params.id });
+    // Body text, HTML and links feed the rule engine's link checks; they are not sent to the client
+    const body = extractBody(payload);
+    const analysis = await aiProvider.analyzeEmail(
+      { ...normalizedEmail, ...body },
+      { explain: true, cacheKey: req.params.id }
+    );
+    delete analysis.payload;
+    delete analysis.bodyText;
+    delete analysis.bodyHtml;
 
     res.json({
       success: true,

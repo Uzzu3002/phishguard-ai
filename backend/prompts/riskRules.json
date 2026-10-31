@@ -1,15 +1,98 @@
 {
-  "domains": {
-    "trusted": ["google.com", "microsoft.com", "apple.com"],
-    "suspiciousTlds": [".xyz", ".top", ".pw", ".tk"]
+  "brands": {
+    "paypal": ["paypal.com", "paypal.me"],
+    "google": ["google.com", "youtube.com", "gmail.com", "googlemail.com", "withgoogle.com"],
+    "microsoft": ["microsoft.com", "outlook.com", "live.com", "office.com", "office365.com", "microsoftonline.com", "hotmail.com"],
+    "outlook": ["outlook.com", "microsoft.com", "office.com", "live.com"],
+    "office 365": ["microsoft.com", "office.com", "office365.com"],
+    "apple": ["apple.com", "icloud.com", "me.com"],
+    "icloud": ["icloud.com", "apple.com"],
+    "amazon": ["amazon.com", "amazon.in", "amazon.co.uk", "amazon.de", "amazon.ca", "amazon.com.au", "amazonpay.in", "aws.amazon.com"],
+    "netflix": ["netflix.com"],
+    "facebook": ["facebook.com", "facebookmail.com", "meta.com"],
+    "instagram": ["instagram.com", "mail.instagram.com", "facebookmail.com"],
+    "whatsapp": ["whatsapp.com", "facebookmail.com"],
+    "linkedin": ["linkedin.com"],
+    "dhl": ["dhl.com", "dhl.de", "dhl.co.in"],
+    "fedex": ["fedex.com"],
+    "github": ["github.com"],
+    "dropbox": ["dropbox.com", "dropboxmail.com"],
+    "docusign": ["docusign.com", "docusign.net"],
+    "sbi": ["sbi.co.in", "onlinesbi.sbi", "sbi.bank.in"],
+    "hdfc": ["hdfcbank.com", "hdfcbank.net", "hdfcbank.bank.in"],
+    "icici": ["icicibank.com", "icicibank.bank.in"],
+    "axis bank": ["axisbank.com", "axisbank.bank.in"],
+    "paytm": ["paytm.com"],
+    "phonepe": ["phonepe.com"],
+    "income tax": ["incometax.gov.in", "incometaxindiaefiling.gov.in"],
+    "irs": ["irs.gov"]
   },
+  "freeMailProviders": [
+    "gmail.com", "googlemail.com", "yahoo.com", "yahoo.co.in", "outlook.com", "hotmail.com", "live.com",
+    "aol.com", "icloud.com", "me.com", "proton.me", "protonmail.com", "gmx.com", "mail.com", "yandex.com", "zoho.com", "rediffmail.com"
+  ],
+  "suspiciousTlds": [
+    ".xyz", ".top", ".pw", ".tk", ".ml", ".ga", ".cf", ".gq", ".zip", ".mov", ".loan", ".click", ".country",
+    ".kim", ".work", ".rest", ".fit", ".cam", ".icu", ".buzz", ".monster", ".cyou", ".sbs", ".ru", ".su"
+  ],
+  "urlShorteners": [
+    "bit.ly", "tinyurl.com", "goo.gl", "ow.ly", "is.gd", "buff.ly", "cutt.ly", "rb.gy", "shorturl.at", "tiny.cc", "rebrand.ly", "t.ly", "s.id"
+  ],
   "keywords": {
-    "urgency": ["urgent", "immediately", "action required", "account suspended"],
-    "financial": ["invoice", "payment", "wire transfer", "gift card"]
+    "accountThreat": [
+      "account suspended", "account has been suspended", "account has been limited", "account limited",
+      "account will be closed", "account will be blocked", "account locked", "unusual activity", "suspicious activity",
+      "unauthorized access", "unauthorised access", "someone has your password", "restore access", "will be deactivated",
+      "mailbox is full", "mailbox storage", "kyc update", "update your kyc", "kyc expired"
+    ],
+    "credentialRequest": [
+      "verify your account", "verify your identity", "confirm your identity", "confirm your password",
+      "update your payment", "update your billing", "login to continue", "log in to continue", "sign in to verify",
+      "click here to secure", "validate your account", "re-enter your password", "enter your otp", "share your otp"
+    ],
+    "financialLure": [
+      "gift card", "gift cards", "wire transfer", "bitcoin", "crypto wallet", "you have won", "you've won",
+      "lottery", "claim your prize", "tax refund", "refund pending", "inheritance", "unclaimed funds"
+    ],
+    "secrecyPressure": [
+      "keep it confidential", "keep this confidential", "are you available", "quick favor", "quick favour",
+      "don't tell anyone", "do not share this with", "i need you to"
+    ],
+    "urgency": [
+      "urgent", "immediately", "action required", "within 24 hours", "within 48 hours", "final notice",
+      "last warning", "expires today", "act now"
+    ],
+    "genericGreeting": [
+      "dear customer", "dear user", "dear account holder", "dear valued", "dear client", "dear member"
+    ]
   },
-  "scoringWeights": {
-    "domainMismatch": 0.4,
-    "urgencyKeywords": 0.2,
-    "suspiciousLinks": 0.4
+  "weights": {
+    "dmarcFail": 35,
+    "spfFail": 20,
+    "dkimFail": 20,
+    "authCap": 50,
+    "brandImpersonation": 45,
+    "lookalikeDomain": 40,
+    "replyToMismatch": 20,
+    "freeMailWithLure": 20,
+    "suspiciousSenderTld": 20,
+    "accountThreat": 20,
+    "credentialRequest": 20,
+    "financialLure": 25,
+    "secrecyPressure": 15,
+    "urgency": 10,
+    "genericGreeting": 10,
+    "contentCap": 50,
+    "verifiedSenderContentCap": 20,
+    "ipLink": 30,
+    "punycodeLink": 20,
+    "shortenerLink": 10,
+    "suspiciousTldLink": 15,
+    "anchorMismatch": 30,
+    "linkCap": 45
+  },
+  "thresholds": {
+    "highRisk": 60,
+    "review": 30
   }
 }
