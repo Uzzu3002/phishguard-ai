@@ -16,7 +16,7 @@ export const logout = async (req, res) => {
       return res.status(500).json({ success: false, message: "Error logging out" });
     }
     req.session.destroy((err) => {
-      res.clearCookie('connect.sid'); // Clear session cookie
+      res.clearCookie('phishguard.sid'); // Clear session cookie
       res.json({
         success: true,
         message: "Successfully logged out"
@@ -61,7 +61,7 @@ export const revokeToken = async (req, res) => {
       return res.status(500).json({ success: false, message: "Error logging out" });
     }
     req.session.destroy((err) => {
-      res.clearCookie('connect.sid');
+      res.clearCookie('phishguard.sid');
       res.json({
         success: true,
         message: "Successfully disconnected and logged out"

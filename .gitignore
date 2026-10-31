@@ -11,3 +11,6 @@ backend/sessions/
 frontend/.env.*
 !frontend/.env.example
 !backend/.env.example
+
+# TLS certificates
+backend/certs/

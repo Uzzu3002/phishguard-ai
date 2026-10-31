@@ -4,6 +4,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Optional comma-separated allow-list; when set, only these Google accounts can sign in
+const allowedEmails = (process.env.ALLOWED_EMAILS || '')
+  .split(',')
+  .map(e => e.trim().toLowerCase())
+  .filter(Boolean);
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -13,6 +19,12 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
+      const email = profile.emails?.[0]?.value?.toLowerCase();
+      if (allowedEmails.length > 0 && !allowedEmails.includes(email)) {
+        console.warn(`Blocked sign-in attempt from ${email || 'unknown account'} (not in ALLOWED_EMAILS)`);
+        return done(null, false);
+      }
+
       // Create user object to store in session
       const user = {
         id: profile.id,
